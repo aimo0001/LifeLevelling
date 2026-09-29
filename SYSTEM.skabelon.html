@@ -1,0 +1,479 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#03060d">
+<title>SYSTEM</title>
+<style>
+:root{
+  --bg:#03060d; --panel:rgba(6,18,38,.88);
+  --blue:#38bdf8; --blue2:#7dd3fc; --text:#dbeafe; --dim:#7ea6c9;
+  --boss:#c084fc; --gold:#fde68a; --ok:#4ade80;
+  --hp:#f87171; --sta:#facc15; --mp:#38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Roboto,-apple-system,sans-serif;color:var(--text);min-height:100vh;padding:16px;padding-top:max(16px,env(safe-area-inset-top));
+  background:radial-gradient(ellipse at top,rgba(56,189,248,.15),transparent 60%),radial-gradient(ellipse at bottom,rgba(124,58,237,.12),transparent 60%),var(--bg);background-attachment:fixed}
+.wrap{max-width:660px;margin:0 auto}
+.win{background:var(--panel);border:1px solid var(--blue);border-radius:6px;padding:18px;margin-bottom:12px;
+  box-shadow:0 0 14px rgba(56,189,248,.45),inset 0 0 20px rgba(56,189,248,.08)}
+.win.boss{border-color:var(--boss);box-shadow:0 0 18px rgba(192,132,252,.55),inset 0 0 22px rgba(192,132,252,.1)}
+.whead{text-align:center;font-size:12px;letter-spacing:.35em;color:var(--blue2);text-transform:uppercase;margin-bottom:14px;text-shadow:0 0 8px var(--blue)}
+.boss .whead{color:#e9d5ff;text-shadow:0 0 8px var(--boss)}
+.whead:before,.whead:after{content:"";display:inline-block;width:40px;height:1px;background:currentColor;vertical-align:middle;margin:0 10px;opacity:.6}
+.mono{font-family:Consolas,"Courier New",monospace}
+.status{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.rank{width:76px;height:76px;border:2px solid var(--blue);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(56,189,248,.6);background:rgba(56,189,248,.08)}
+.rank b{font-size:34px;line-height:1;color:#fff;text-shadow:0 0 12px var(--blue)}
+.rank span{font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.lv{font-size:13px;color:var(--dim);letter-spacing:.1em}
+.lv b{font-size:26px;color:#fff;text-shadow:0 0 10px var(--blue)}
+.job{font-size:13px;color:var(--gold)}
+.bar{height:8px;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.4);border-radius:2px;overflow:hidden;margin:8px 0 4px}
+.fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#7dd3fc);box-shadow:0 0 10px var(--blue);transition:width .6s}
+.small{font-size:11px;color:var(--dim)}
+.flex{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.goal{cursor:pointer;text-decoration:underline dotted}
+.phase{margin-top:12px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);letter-spacing:.1em}
+.phase select{flex:1;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.4);color:#fff;padding:6px;border-radius:4px;font:inherit;font-size:12px}
+.phase select option{background:#061226}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 16px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(56,189,248,.25)}
+.stat{display:flex;justify-content:space-between;font-size:13px}
+.stat span{color:var(--dim)} .stat b{color:#fff}
+.vrow{display:grid;grid-template-columns:44px 1fr 46px;gap:10px;align-items:center;margin-bottom:8px}
+.vl{font-weight:700;font-size:13px}
+.vbar{height:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+.vbar div{height:100%;transition:width .5s}
+.vn{text-align:right;font-size:12px;color:#fff}
+.vgroup{margin-top:14px;padding-top:10px;border-top:1px solid rgba(56,189,248,.2)}
+.vgh{font-size:11px;letter-spacing:.2em;margin-bottom:6px}
+.vitem{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:14px;gap:8px}
+.cnt{display:flex;align-items:center;gap:6px}
+.cnt button{width:28px;height:28px;border:1px solid var(--blue);background:transparent;color:var(--blue2);border-radius:4px;cursor:pointer;font-size:16px}
+.cnt span{min-width:44px;text-align:center;font-size:13px}
+.note{font-size:12px;line-height:1.5;color:#e9d5ff;border-left:2px solid var(--boss);padding:6px 10px;margin-top:10px;background:rgba(192,132,252,.08)}
+.lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.lane{background:var(--panel);border:1px solid rgba(56,189,248,.35);color:var(--text);border-radius:6px;padding:8px 4px;cursor:pointer;text-align:center;transition:all .2s}
+.lane.on{border-color:var(--blue);background:rgba(56,189,248,.18);box-shadow:0 0 14px rgba(56,189,248,.6)}
+.lane .i{font-size:18px}.lane .n{font-size:11px;font-weight:600}.lane .c{font-size:11px;color:var(--dim)}
+.sub{text-align:center;font-size:12px;color:var(--dim);margin-bottom:10px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.arrow{width:34px;height:34px;border:1px solid var(--blue);background:transparent;color:var(--blue2);font-size:18px;border-radius:4px;cursor:pointer}
+.boss .arrow{border-color:var(--boss);color:#e9d5ff}
+.center{text-align:center}
+.tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue2)}
+.boss .tag{color:#e9d5ff}
+.dots{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.dot{height:6px;width:6px;border:none;background:rgba(56,189,248,.25);cursor:pointer;transition:all .2s}
+.dot.done{background:var(--ok)}.dot.cur{width:22px;background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.qt{font-size:18px;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.35}
+.strike{text-decoration:line-through;opacity:.5}
+.tip{font-size:14px;opacity:.85;margin-bottom:12px;line-height:1.55;white-space:pre-wrap}
+.tip:before{content:"▸ ";color:var(--blue)}
+.script{border-left:2px solid var(--blue);background:rgba(56,189,248,.07);padding:10px 12px;margin-bottom:12px;font-size:14px;white-space:pre-wrap;line-height:1.5}
+.copy{margin-top:8px;font-size:11px;letter-spacing:.1em;background:transparent;color:var(--blue2);border:1px solid var(--blue);padding:4px 10px;border-radius:3px;cursor:pointer}
+.reward{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);border-top:1px solid rgba(56,189,248,.2);padding-top:10px;margin-bottom:12px}
+.reward b{color:var(--gold)}
+.main{width:100%;padding:12px;border:1px solid var(--blue);background:rgba(56,189,248,.15);color:#fff;font-weight:700;letter-spacing:.15em;text-transform:uppercase;border-radius:4px;cursor:pointer;font-size:13px}
+.boss .main{border-color:var(--boss);background:rgba(192,132,252,.18)}
+.main.undo{background:transparent;color:var(--dim);border-color:rgba(56,189,248,.3)}
+.editbtn{display:block;margin:10px auto 0;background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;letter-spacing:.1em}
+.btns{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.ghost{flex:1;font-size:12px;background:var(--panel);color:var(--text);border:1px solid rgba(56,189,248,.35);padding:9px 12px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.ghost.hi{border-color:var(--blue);color:#fff;background:rgba(56,189,248,.2)}
+.ghost.moon{border-color:var(--boss);color:#fff;background:rgba(192,132,252,.2)}
+.item{border:1px solid rgba(56,189,248,.25);background:var(--panel);border-radius:4px;padding:10px 12px;margin-bottom:6px}
+.item.done{border-color:rgba(74,222,128,.4)} .item.bossi{border-color:rgba(192,132,252,.5)}
+.irow{display:flex;align-items:center;gap:10px}
+.chk{width:22px;height:22px;border:1px solid var(--blue);background:transparent;color:#03060d;flex-shrink:0;cursor:pointer;font-weight:700;border-radius:3px}
+.chk.on{background:var(--ok);border-color:var(--ok)}
+.itext{flex:1;font-size:14px;cursor:pointer}
+.ib{background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px 4px}
+.detail{margin:8px 0 0 32px;font-size:12px;line-height:1.5}
+.detail .script{font-size:12px;margin:8px 0 0}
+.link{background:none;border:none;color:var(--blue2);text-decoration:underline;cursor:pointer;margin:8px 12px 0 0;font-size:12px}
+.clear{border:1px solid var(--ok);color:var(--ok);text-align:center;padding:10px;margin-bottom:10px;letter-spacing:.2em;font-size:12px;border-radius:4px}
+.empty{text-align:center;color:var(--dim);font-size:14px}
+.foot{text-align:center;font-size:11px;color:var(--dim);margin-top:14px}
+.tools{margin-top:18px}
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:20;min-width:280px;max-width:90vw;text-align:center;
+  background:rgba(3,10,24,.96);border:1px solid var(--blue);padding:16px 22px;border-radius:6px;box-shadow:0 0 30px rgba(56,189,248,.7);animation:pop .35s ease}
+.toast .h{font-size:11px;letter-spacing:.35em;color:var(--blue2);margin-bottom:6px}
+.toast .m{font-size:16px;font-weight:700;color:#fff}
+.toast .s{font-size:13px;color:var(--gold);margin-top:4px}
+.toast.lvl{border-color:var(--gold);box-shadow:0 0 40px rgba(253,230,138,.6)}
+.toast.lvl .m{font-size:24px;letter-spacing:.2em;color:var(--gold);text-shadow:0 0 12px var(--gold)}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-12px) scale(.95)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal{width:100%;max-width:520px;max-height:90vh;overflow:auto;margin:0}
+.modal label{display:block;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin:12px 0 4px}
+.modal input[type=text],.modal input[type=number],.modal textarea,.modal select{width:100%;padding:10px;background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.4);border-radius:4px;font:inherit;font-size:14px;color:#fff}
+.modal select option{background:#061226}
+.modal textarea{min-height:80px;resize:vertical}
+.modal .hint{font-size:11px;color:var(--dim);margin-top:3px}
+.modal .check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px}
+.mbtns{display:flex;gap:8px;margin-top:16px}
+.mbtns button{flex:1;padding:10px;border-radius:4px;font-weight:700;cursor:pointer;font-size:13px;letter-spacing:.1em;background:transparent}
+.save{border:1px solid var(--blue);color:#fff;background:rgba(56,189,248,.25)!important}
+.cancel{border:1px solid rgba(56,189,248,.35);color:var(--dim)}
+.del{border:1px solid #f87171;color:#fca5a5}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importData(event)">
+<script>
+const KEY_DONE = "livsspil-v2", KEY_QUESTS = "livsspil-quests-v3", KEY_META = "livsspil-meta", KEY_VIT = "livsspil-vitals", KEY_CFG = "livsspil-cfg";
+const MAINTAIN_PCT = 70, MAINTAIN_XP = 15;
+const RANKS = [{lvl:1,r:"E"},{lvl:3,r:"D"},{lvl:5,r:"C"},{lvl:7,r:"B"},{lvl:9,r:"A"},{lvl:12,r:"S"}];
+const BAR_STYLE = {hp:{short:"HP",color:"var(--hp)"}, sta:{short:"STA",color:"var(--sta)"}, mp:{short:"MP",color:"var(--mp)"}};
+
+/* Generiske standardindstillinger. Egne indstillinger hentes via backup eller "Indsæt tekst". */
+const DEFAULT_CFG = {
+  goal: null,
+  titles: [{d:0,t:"Begynder"},{d:3,t:"Vedholdende"},{d:7,t:"Standhaftig"},{d:14,t:"Stabil"},{d:30,t:"Mester"},{d:60,t:"Legende"}],
+  phases: [],
+  bars: {hp:"Helbred", sta:"Energi", mp:"Sind"},
+  alt: null,
+  vitals: [
+    {id:"water",bar:"hp",label:"Vand",type:"count",max:8,unit:"glas",mode:"all"},
+    {id:"meals",bar:"hp",label:"Måltider",type:"count",max:3,mode:"all"},
+    {id:"move",bar:"hp",label:"Bevægelse 15+ min",type:"check",mode:"all"},
+    {id:"sleep",bar:"sta",label:"Søvn i nat",type:"count",max:8,unit:"timer",mode:"all"},
+    {id:"rest",bar:"sta",label:"Pause uden skærm (15 min)",type:"check",mode:"all"},
+    {id:"out",bar:"sta",label:"Frisk luft / dagslys",type:"check",mode:"all"},
+    {id:"calm",bar:"mp",label:"5 min ro",type:"check",mode:"all"},
+    {id:"good",bar:"mp",label:"Skriv én god ting ned",type:"check",mode:"all"}
+  ],
+  lanes: [
+    {id:"dag",icon:"☀️",name:"I dag",stat:"FOK",sub:"Dagens quests"},
+    {id:"mal",icon:"🎯",name:"Mål",stat:"MOD",sub:"Større mål"},
+    {id:"admin",icon:"📋",name:"Admin",stat:"ORD",sub:"Små opgaver"}
+  ]
+};
+const DEFAULT_Q = [
+  {id:"q1",lane:"dag",xp:15,t:"Brain dump: skriv alt ned, der kører i hovedet (10 min)",tip:"Du skal ikke løse noget. Bare få det ud af hovedet."},
+  {id:"q2",lane:"dag",xp:10,t:"Ryd op i 10 minutter",tip:"Sæt en timer. Stop, når den ringer."},
+  {id:"q3",lane:"dag",xp:10,t:"Skriv morgendagens 3 vigtigste quests ned",tip:"Så starter du dagen med en plan."},
+  {id:"q4",lane:"mal",xp:25,t:"Skriv ét mål ned for denne måned",tip:"Del det op i små quests."},
+  {id:"q5",lane:"admin",xp:10,t:"Gå din post igennem",tip:"Lav en quest ud af det, der kræver handling."}
+];
+
+let store = null;
+try { localStorage.setItem("_t","1"); localStorage.removeItem("_t"); store = localStorage; } catch(e) {}
+const clone = x => JSON.parse(JSON.stringify(x));
+const today = () => new Date().toLocaleDateString("sv-SE");
+const load = (k, d) => { try { if (store) { const s = store.getItem(k); if (s) return JSON.parse(s); } } catch(e) {} return d; };
+function mergeCfg(c){ const r = Object.assign(clone(DEFAULT_CFG), c || {}); r.bars = Object.assign(clone(DEFAULT_CFG.bars), (c && c.bars) || {}); return r; }
+function fixMeta(){ if ("hayd" in meta) { meta.alt = !!meta.hayd; delete meta.hayd; } if (!meta.maint) meta.maint = {}; }
+
+let cfg = mergeCfg(load(KEY_CFG, {}));
+let done = load(KEY_DONE, {});
+let quests = load(KEY_QUESTS, clone(DEFAULT_Q));
+let meta = Object.assign({alt:false, phase:"", maint:{}}, load(KEY_META, {})); fixMeta();
+let vit = load(KEY_VIT, null);
+if (!vit || vit.date !== today()) vit = {date: today(), vals: {}};
+
+let lane = cfg.lanes[0].id, pos = {}, showAll = false, openRow = null, copied = false, editing = null, pasting = false, toast = null, toastT = null, showVit = true;
+
+function save(){ try { if (store) {
+  store.setItem(KEY_CFG, JSON.stringify(cfg)); store.setItem(KEY_DONE, JSON.stringify(done)); store.setItem(KEY_QUESTS, JSON.stringify(quests));
+  store.setItem(KEY_META, JSON.stringify(meta)); store.setItem(KEY_VIT, JSON.stringify(vit)); } } catch(e) {} }
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function questXP(){ return quests.filter(q => done[q.id]).reduce((s,q) => s + (q.xp||0), 0); }
+function totalXP(){ return questXP() + Object.keys(meta.maint).length * MAINTAIN_XP; }
+function levelOf(xp){ return Math.floor(xp/100) + 1; }
+function rankOf(lvl){ let r = RANKS[0].r; RANKS.forEach(x => { if (lvl >= x.lvl) r = x.r; }); return r; }
+function dayNum(s){ return Math.round(new Date(s + "T00:00:00Z").getTime() / 86400000); }
+function streaks(){
+  const days = Object.keys(meta.maint).map(dayNum).sort((a,b) => a-b);
+  let best = 0, run = 0, prev = null;
+  days.forEach(d => { run = (prev !== null && d === prev + 1) ? run + 1 : 1; best = Math.max(best, run); prev = d; });
+  const set = new Set(days), t = dayNum(today());
+  let start = set.has(t) ? t : t - 1, cur = 0;
+  while (set.has(start)) { cur++; start--; }
+  return {cur, best};
+}
+function titleOf(best){ let t = cfg.titles[0] ? cfg.titles[0].t : ""; cfg.titles.forEach(x => { if (best >= x.d) t = x.t; }); return t; }
+
+function setGoal(){
+  const d = prompt("Dato for nedtælling (ÅÅÅÅ-MM-DD).\nTomt felt fjerner den.", cfg.goal ? cfg.goal.date : "");
+  if (d === null) return;
+  const v = d.trim();
+  if (!v) { cfg.goal = null; save(); render(); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || isNaN(new Date(v))) { alert("Skriv datoen som fx 2026-12-01."); return; }
+  const t = prompt("Tekst efter antal dage", cfg.goal ? cfg.goal.text : "dage tilbage");
+  cfg.goal = {date: v, text: (t && t.trim()) || "dage tilbage"}; save(); render();
+}
+
+function visibleVitals(){ return cfg.vitals.filter(v => v.mode === "all" || !v.mode || (meta.alt ? v.mode === "alt" : v.mode === "normal")); }
+function calcBars(){
+  const out = {};
+  Object.keys(BAR_STYLE).forEach(b => {
+    const items = visibleVitals().filter(v => v.bar === b);
+    const sum = items.reduce((s,v) => s + Math.min((vit.vals[v.id]||0) / (v.type === "count" ? v.max : 1), 1), 0);
+    out[b] = items.length ? Math.round(sum / items.length * 100) : 100;
+  });
+  return out;
+}
+function checkMaintained(){
+  const b = calcBars(), ok = Object.values(b).every(x => x >= MAINTAIN_PCT), was = !!meta.maint[today()];
+  if (ok && !was) {
+    const before = levelOf(totalXP()); meta.maint[today()] = true; save();
+    const after = levelOf(totalXP()), s = streaks();
+    if (after > before) showToast({lvl:true, m:"LEVEL UP!", s:`Level ${after} · Rang ${rankOf(after)}`});
+    else showToast({m:"Daglig vedligeholdelse fuldført", s:`+${MAINTAIN_XP} XP · VIT ↑ · Streak ${s.cur} 🔥`});
+    return;
+  }
+  if (!ok && was) delete meta.maint[today()];
+  save(); render();
+}
+function vInc(id, d){ const v = cfg.vitals.find(x => x.id === id); vit.vals[id] = Math.max(0, Math.min(v.max, (vit.vals[id]||0) + d)); checkMaintained(); }
+function vToggle(id){ vit.vals[id] = vit.vals[id] ? 0 : 1; checkMaintained(); }
+function toggleAlt(){ meta.alt = !meta.alt; showToast({m: cfg.alt.label + (meta.alt ? " aktiveret" : " slået fra"), s: meta.alt ? (cfg.alt.on||"") : (cfg.alt.off||"")}); checkMaintained(); }
+function toggleVit(){ showVit = !showVit; render(); }
+function setPhase(p){ meta.phase = p; pos = {}; save(); const P = cfg.phases.find(x => x.id === p); showToast({m:"Ny fase", s: P ? P.name : ""}); }
+
+function inPhase(q){ return !q.phase || !cfg.phases.length || q.phase === meta.phase; }
+function laneList(){ return quests.filter(q => q.lane === lane && inPhase(q)); }
+function firstUndone(list){ const f = list.findIndex(q => !done[q.id]); return f < 0 ? 0 : f; }
+function curIdx(){ const l = laneList(); let i = pos[lane] !== undefined ? pos[lane] : firstUndone(l); if (i >= l.length) i = 0; return i; }
+function showToast(t){ toast = t; render(); clearTimeout(toastT); toastT = setTimeout(() => { toast = null; render(); }, t.lvl ? 2800 : 2000); }
+function setLane(id){ lane = id; showAll = false; openRow = null; render(); }
+function go(n){ const l = laneList(); if (!l.length) return; pos[lane] = (n + l.length) % l.length; render(); }
+function markDone(id, val){
+  const before = levelOf(totalXP());
+  if (val) done[id] = true; else delete done[id];
+  save();
+  if (val) {
+    const q = quests.find(x => x.id === id), L = cfg.lanes.find(l => l.id === q.lane), after = levelOf(totalXP());
+    if (after > before) showToast({lvl:true, m:"LEVEL UP!", s:`Level ${after} · Rang ${rankOf(after)}`});
+    else showToast({m:"Quest fuldført", s:`+${q.xp||0} XP · ${L ? L.stat : ""} ↑`});
+  } else render();
+}
+function toggle(id){ markDone(id, !done[id]); }
+function complete(){
+  const l = laneList(), i = curIdx(), q = l[i], was = !!done[q.id];
+  if (!was) { const n = l.findIndex((x,k) => k > i && !done[x.id]); if (n !== -1) pos[lane] = n; }
+  markDone(q.id, !was);
+}
+function copyScript(){
+  const q = laneList()[curIdx()];
+  const ok = () => { copied = true; render(); setTimeout(() => { copied = false; render(); }, 1500); };
+  try { navigator.clipboard.writeText(q.script).then(ok, () => fallbackCopy(q.script, ok)); } catch(e) { fallbackCopy(q.script, ok); }
+}
+function fallbackCopy(t, ok){ const a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); ok(); } catch(e) {} a.remove(); }
+function toggleAll(){ showAll = !showAll; render(); }
+function toggleRow(id){ openRow = openRow === id ? null : id; render(); }
+function openCard(k){ pos[lane] = k; showAll = false; render(); window.scrollTo({top:0, behavior:"smooth"}); }
+function resetDay(){ quests.filter(x => x.lane === "dag").forEach(x => delete done[x.id]); pos.dag = 0; save(); showToast({m:"Ny dag", s:"Dagens quests er klar igen"}); }
+
+function openEdit(id){ editing = clone(quests.find(q => q.id === id)); render(); }
+function newQuest(){ editing = {id:null, lane:lane, xp:15, t:"", tip:"", script:"", boss:false, phase:""}; render(); }
+function closeEdit(){ editing = null; render(); }
+function saveEdit(){
+  const v = id => { const el = document.getElementById(id); return el ? el.value : ""; };
+  const t = v("f_t").trim();
+  if (!t) { alert("Questen skal have en titel."); return; }
+  const q = { id: editing.id || ("c" + Date.now()), lane: v("f_lane"), phase: v("f_phase"), xp: Math.max(0, parseInt(v("f_xp")) || 0),
+              t: t, tip: v("f_tip").trim(), script: v("f_script").trim(), boss: document.getElementById("f_boss").checked };
+  ["tip","script","boss","phase"].forEach(k => { if (!q[k]) delete q[k]; });
+  const isNew = !editing.id;
+  if (!isNew) quests = quests.map(x => x.id === q.id ? q : x);
+  else { quests.push(q); lane = q.lane; pos[lane] = Math.max(0, laneList().length - 1); }
+  editing = null; save();
+  if (isNew) showToast({m:"Ny quest modtaget", s:`+${q.xp} XP ved fuldførelse`}); else render();
+}
+function deleteQuest(){
+  if (!confirm("Slet denne quest?")) return;
+  quests = quests.filter(x => x.id !== editing.id); delete done[editing.id];
+  pos[lane] = 0; editing = null; save(); render();
+}
+function move(id, dir){
+  const idx = quests.findIndex(q => q.id === id), l = quests[idx].lane;
+  let j = idx + dir;
+  while (j >= 0 && j < quests.length && !(quests[j].lane === l && inPhase(quests[j]))) j += dir;
+  if (j < 0 || j >= quests.length) return;
+  [quests[idx], quests[j]] = [quests[j], quests[idx]];
+  save(); render();
+}
+function resetDefaults(){
+  if (!confirm("Nulstil quests til standard? Dine egne quests forsvinder. Tag en backup først.")) return;
+  quests = clone(DEFAULT_Q); pos = {}; save(); render();
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify({cfg, quests, done, meta}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "backup-" + today() + ".json"; a.click();
+}
+function applyImport(d){
+  let ok = false;
+  if (d.cfg && typeof d.cfg === "object") { cfg = mergeCfg(d.cfg); ok = true; }
+  if (Array.isArray(d.quests)) { quests = d.quests; done = d.done || {}; ok = true; }
+  if (d.meta && typeof d.meta === "object") { meta = Object.assign(meta, d.meta); ok = true; }
+  if (!ok) throw 0;
+  fixMeta();
+  if (!cfg.lanes.find(l => l.id === lane)) lane = cfg.lanes[0].id;
+  if (cfg.phases.length && !cfg.phases.find(p => p.id === meta.phase)) meta.phase = cfg.phases[0].id;
+  pos = {}; save();
+  showToast({m:"Data indlæst", s:"Dine data er gendannet"});
+}
+function importData(e){
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { try { applyImport(JSON.parse(r.result)); } catch(x) { alert("Filen kunne ikke læses."); } };
+  r.readAsText(f); e.target.value = "";
+}
+function openPaste(){ pasting = true; render(); }
+function closePaste(){ pasting = false; render(); }
+function applyPaste(){
+  const t = document.getElementById("p_txt").value;
+  try { pasting = false; applyImport(JSON.parse(t)); } catch(x) { pasting = true; alert("Teksten kunne ikke læses. Tjek at du har kopieret det hele."); }
+}
+
+function render(){
+  if (vit.date !== today()) { vit = {date: today(), vals: {}}; save(); }
+  const xp = totalXP(), lvl = levelOf(xp), pct = xp % 100, rank = rankOf(lvl), st = streaks();
+  const g = cfg.goal, days = g ? Math.max(0, Math.ceil((new Date(g.date) - new Date()) / 86400000)) : 0;
+  const goalHtml = `<span class="goal" onclick="setGoal()">${g ? `${days} ${esc(g.text)}` : "＋ Sæt nedtælling"}</span>`;
+  const list = laneList(), fu = firstUndone(list), i = curIdx(), q = list[i];
+  const L = cfg.lanes.find(l => l.id === lane) || cfg.lanes[0];
+  const allDone = list.length && list.every(x => done[x.id]);
+  const bars = calcBars(), maintToday = !!meta.maint[today()];
+
+  let h = `<div class="win">
+    <div class="whead">Status</div>
+    <div class="status">
+      <div class="rank"><b>${rank}</b><span>RANG</span></div>
+      <div>
+        <div class="lv">LEVEL <b class="mono">${lvl}</b></div>
+        <div class="job">Titel: ${esc(titleOf(st.best))}</div>
+        <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
+        <div class="flex small mono"><span>XP ${pct}/100</span>${goalHtml}</div>
+      </div>
+    </div>
+    ${cfg.phases.length ? `<div class="phase"><span>FASE</span><select onchange="setPhase(this.value)">${cfg.phases.map(p => `<option value="${esc(p.id)}" ${p.id===meta.phase?"selected":""}>${esc(p.name)}</option>`).join("")}</select></div>` : ""}
+    <div class="stats">
+      <div class="stat mono"><span>VIT</span><b>${10 + Object.keys(meta.maint).length * 2}</b></div>
+      ${cfg.lanes.map(l => {
+        const v = 10 + Math.floor(quests.filter(x => x.lane === l.id && done[x.id]).reduce((s,x) => s + (x.xp||0), 0) / 5);
+        return `<div class="stat mono"><span>${esc(l.stat)}</span><b>${v}</b></div>`; }).join("")}
+    </div>
+  </div>`;
+
+  h += `<div class="win">
+    <div class="whead">Vitals</div>
+    ${Object.keys(BAR_STYLE).map(b => `<div class="vrow"><span class="vl mono" style="color:${BAR_STYLE[b].color}">${BAR_STYLE[b].short}</span>
+      <div class="vbar"><div style="width:${bars[b]}%;background:${BAR_STYLE[b].color};box-shadow:0 0 10px ${BAR_STYLE[b].color}"></div></div>
+      <span class="vn mono">${bars[b]}%</span></div>`).join("")}
+    <div class="flex small mono" style="margin-top:6px"><span>🔥 Streak ${st.cur} · Bedste ${st.best}</span>
+      <span>${maintToday ? "✓ Vedligeholdt i dag" : `Mål: alle ≥ ${MAINTAIN_PCT}%`}</span></div>
+    <div class="btns" style="margin-top:12px;margin-bottom:0">
+      ${cfg.alt ? `<button class="ghost ${meta.alt?"moon":""}" onclick="toggleAlt()">🌙 ${esc(cfg.alt.label)}: ${meta.alt?"TIL":"FRA"}</button>` : ""}
+      <button class="ghost" onclick="toggleVit()">${showVit?"Skjul vitals":"Opdater vitals"}</button>
+    </div>
+    ${cfg.alt && meta.alt && cfg.alt.note ? `<div class="note">${esc(cfg.alt.note)}</div>` : ""}
+    ${showVit ? Object.keys(BAR_STYLE).map(b => `<div class="vgroup"><div class="vgh mono" style="color:${BAR_STYLE[b].color}">${BAR_STYLE[b].short} · ${esc((cfg.bars[b]||"").toUpperCase())}</div>
+      ${visibleVitals().filter(v => v.bar === b).map(v => {
+        const val = vit.vals[v.id] || 0;
+        return v.type === "count"
+          ? `<div class="vitem"><span>${esc(v.label)}</span><div class="cnt"><button onclick="vInc('${esc(v.id)}',-1)">−</button><span class="mono">${val}/${v.max}${v.unit?" "+esc(v.unit):""}</span><button onclick="vInc('${esc(v.id)}',1)">+</button></div></div>`
+          : `<div class="vitem"><span>${esc(v.label)}</span><button class="chk ${val?"on":""}" onclick="vToggle('${esc(v.id)}')">${val?"✓":""}</button></div>`;
+      }).join("")}</div>`).join("") : ""}
+  </div>`;
+
+  h += `<div class="lanes">` + cfg.lanes.map(l => { const qs = quests.filter(x => x.lane === l.id && inPhase(x)), d = qs.filter(x => done[x.id]).length;
+    return `<button class="lane ${l.id===lane?"on":""}" onclick="setLane('${esc(l.id)}')"><div class="i">${esc(l.icon)}</div><div class="n">${esc(l.name)}</div><div class="c mono">${d}/${qs.length}</div></button>`; }).join("") + `</div>`;
+  h += `<div class="sub">${esc(L.sub)}</div>`;
+  if (allDone) h += `<div class="clear">[ ALLE QUESTS I BANEN ER FULDFØRT ]</div>`;
+
+  if (q) {
+    const head = q.boss ? "Boss Quest" : lane === "dag" ? "Daglig Quest" : "Quest Info";
+    const label = done[q.id] ? "✓ Fuldført" : i === fu ? "Aktiv quest" : "Kig frem";
+    h += `<div class="win ${q.boss?"boss":""}">
+      <div class="whead">${head}</div>
+      <div class="nav"><button class="arrow" onclick="go(${i-1})">‹</button>
+      <div class="center"><div class="tag">${label}</div><div class="small mono">${i+1} / ${list.length}</div></div>
+      <button class="arrow" onclick="go(${i+1})">›</button></div>
+      <div class="dots">${list.map((x,k) => `<button class="dot ${k===i?"cur":done[x.id]?"done":""}" onclick="go(${k})"></button>`).join("")}</div>
+      <div class="qt ${done[q.id]?"strike":""}">${esc(q.t)}</div>
+      ${q.tip ? `<div class="tip">${esc(q.tip)}</div>` : ""}
+      ${q.script ? `<div class="script">${esc(q.script)}<br><button class="copy" onclick="copyScript()">${copied?"KOPIERET ✓":"KOPIÉR TEKST"}</button></div>` : ""}
+      <div class="reward mono"><span>BELØNNING</span><span><b>+${q.xp||0} XP</b> · ${esc(L.stat)} ↑</span></div>
+      <button class="main ${done[q.id]?"undo":""}" onclick="complete()">${done[q.id]?"↩ Fortryd":"Fuldfør quest"}</button>
+      <button class="editbtn" onclick="openEdit('${esc(q.id)}')">✎ REDIGER</button>
+    </div>`;
+  } else {
+    h += `<div class="win"><div class="empty">Ingen quests i denne bane.</div></div>`;
+  }
+
+  h += `<div class="btns">
+    <button class="ghost hi" onclick="newQuest()">+ Ny quest</button>
+    <button class="ghost" onclick="toggleAll()">${showAll?"Skjul quest-log":"Quest-log"}</button>
+    ${lane==="dag" ? `<button class="ghost" style="flex:0" onclick="resetDay()">Ny dag ↻</button>` : ""}
+  </div>`;
+
+  if (showAll) {
+    h += list.map((x,k) => `<div class="item ${done[x.id]?"done":""} ${x.boss?"bossi":""}">
+      <div class="irow"><button class="chk ${done[x.id]?"on":""}" onclick="toggle('${esc(x.id)}')">${done[x.id]?"✓":""}</button>
+      <div class="itext ${done[x.id]?"strike":""}" onclick="toggleRow('${esc(x.id)}')"><span class="small mono">${String(k+1).padStart(2,"0")}</span> ${x.boss?"⚔ ":""}${esc(x.t)}</div>
+      <button class="ib" onclick="move('${esc(x.id)}',-1)">↑</button>
+      <button class="ib" onclick="move('${esc(x.id)}',1)">↓</button>
+      <button class="ib" onclick="toggleRow('${esc(x.id)}')">${openRow===x.id?"▾":"▸"}</button></div>
+      ${openRow===x.id ? `<div class="detail">${x.tip?`<div class="tip">${esc(x.tip)}</div>`:""}${x.script?`<div class="script">${esc(x.script)}</div>`:""}
+        <button class="link" onclick="openCard(${k})">Åbn vindue</button><button class="link" onclick="openEdit('${esc(x.id)}')">Rediger</button></div>` : ""}
+    </div>`).join("");
+  }
+
+  h += `<div class="tools btns">
+    <button class="ghost" onclick="exportData()">Backup</button>
+    <button class="ghost" onclick="document.getElementById('importFile').click()">Hent backup</button>
+    <button class="ghost" onclick="openPaste()">Indsæt tekst</button>
+    <button class="ghost" onclick="resetDefaults()">Nulstil</button>
+  </div>`;
+  h += `<div class="foot mono">[ SYSTEM ] ${store ? "Gemmes kun på denne enhed" : "Gemmes kun, mens siden er åben"}</div>`;
+
+  if (toast) h += `<div class="toast ${toast.lvl?"lvl":""}"><div class="h">[ SYSTEM ]</div><div class="m">${esc(toast.m)}</div>${toast.s?`<div class="s">${esc(toast.s)}</div>`:""}</div>`;
+
+  if (pasting) {
+    h += `<div class="overlay" onclick="if(event.target===this)closePaste()"><div class="win modal">
+      <div class="whead">Indsæt tekst</div>
+      <textarea id="p_txt" style="min-height:200px" placeholder="Indsæt backup- eller indstillings-tekst her"></textarea>
+      <div class="mbtns"><button class="cancel" onclick="closePaste()">Annuller</button><button class="save" onclick="applyPaste()">Indlæs</button></div>
+    </div></div>`;
+  }
+
+  if (editing) {
+    h += `<div class="overlay" onclick="if(event.target===this)closeEdit()"><div class="win modal">
+      <div class="whead">${editing.id ? "Rediger quest" : "Ny quest"}</div>
+      <label>Titel</label><input type="text" id="f_t" value="${esc(editing.t)}" placeholder="Hvad skal du gøre?">
+      <label>Beskrivelse</label><textarea id="f_tip" placeholder="Hvorfor og hvordan (valgfri)">${esc(editing.tip)}</textarea>
+      <label>Tekst til kopiering</label><textarea id="f_script" placeholder="Fx en besked du skal sende (valgfri)">${esc(editing.script)}</textarea>
+      <div class="hint">Vises med en "Kopiér tekst"-knap.</div>
+      <label>Bane</label><select id="f_lane">${cfg.lanes.map(l => `<option value="${esc(l.id)}" ${l.id===editing.lane?"selected":""}>${esc(l.icon)} ${esc(l.name)} (${esc(l.stat)})</option>`).join("")}</select>
+      ${cfg.phases.length ? `<label>Fase</label><select id="f_phase"><option value="">Alle faser</option>${cfg.phases.map(p => `<option value="${esc(p.id)}" ${p.id===editing.phase?"selected":""}>${esc(p.name)}</option>`).join("")}</select>` : ""}
+      <label>XP-belønning</label><input type="number" id="f_xp" min="0" step="5" value="${editing.xp||0}">
+      <div class="check"><input type="checkbox" id="f_boss" ${editing.boss?"checked":""}><span>⚔ Boss quest</span></div>
+      <div class="mbtns">
+        ${editing.id ? `<button class="del" onclick="deleteQuest()">Slet</button>` : ""}
+        <button class="cancel" onclick="closeEdit()">Annuller</button>
+        <button class="save" onclick="saveEdit()">Gem</button>
+      </div>
+    </div></div>`;
+  }
+
+  document.getElementById("app").innerHTML = h;
+  if (editing && !editing.id) { const f = document.getElementById("f_t"); if (f) f.focus(); }
+}
+render();
+</script>
+</body>
+</html>
+
+</body></html>
